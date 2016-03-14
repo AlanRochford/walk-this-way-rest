@@ -80,8 +80,6 @@ $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 		$stmt = pg_query($db, $sql);
 		$arrayOfResults = fetchResults ( $stmt );
 		
-	;
-// 	echo $html;
 		$db = null;
 		echoRespnse(200, $arrayOfResults);
 
