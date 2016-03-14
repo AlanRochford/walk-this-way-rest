@@ -73,7 +73,7 @@ $app->map ( "/linestring/(:id)", function ($elementID = null) use ($app)
 $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 {
 	$paramValue = $app->request()->get('id');
-	$sql = "SELECT route_name, route_time, visibility, geom FROM routes WHERE facebook_id = '$paramValue'";
+	$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) FROM routes WHERE facebook_id = '$paramValue'";
 
 	try {
 		$db = getDB();
