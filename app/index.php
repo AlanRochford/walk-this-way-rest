@@ -92,6 +92,28 @@ $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 
 } )->via( "GET");
 
+$app->map ( "/video/", function ($elementID = null) use ($app)
+{
+	$paramValue = $app->request()->get('time');
+	$sql = "SELECT video_key FROM video WHERE video_time = '$paramValue'";
+
+	try {
+		$db = getDB();
+		$stmt = pg_query($db, $sql);
+		$arrayOfResults = fetchResults ( $stmt );
+		
+		$db = null;
+		echoRespnse(200, $arrayOfResults);
+
+	} 
+	
+	catch(PDOException $e) {
+		//error_log($e->getMessage(), 3, '/var/tmp/phperror.log'); //Write error log
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+
+} )->via( "GET");
+
 function fetchResults($resultSet) {
 	$rows = array (); // will contain all the records
 	while ( $row = pg_fetch_assoc($resultSet) ) {
