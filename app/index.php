@@ -94,8 +94,54 @@ $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 
 $app->map ( "/video/", function ($elementID = null) use ($app)
 {
-	$paramValue = $app->request()->get('time');
-	$sql = "SELECT video_key FROM video WHERE video_time = '$paramValue'";
+	$routeTime = $app->request()->get('time');
+	$currTime = $app->request()->get('currtime');
+	$timeInt = intval($routeTime);
+	
+	switch ($currTime){
+		
+		case '00': case '01': case '02':
+			$sql = "SELECT video_key FROM video WHERE (genre = 'Jazz' OR genre = 'Light Rock') 
+					AND (video_time BETWEEN ($routeTime - 100) AND ($routeTime + 100))";			
+			break;
+			
+		case '03': case '04': case '05':
+			$sql = "SELECT video_key FROM video WHERE (genre = 'Jazz' OR genre = 'Light Rock') 
+					AND (video_time BETWEEN ($routeTime - 100) AND ($routeTime + 100))";
+			break;
+			
+		case '06': case '07': case '08':
+			$sql = "SELECT video_key FROM video WHERE (genre = 'Jazz' OR genre = 'Light Rock') 
+					AND (video_time BETWEEN ($routeTime - 100) AND ($routeTime + 100))";
+			break;
+			
+		case '09': case '10': case '11':
+			$sql = "SELECT video_key FROM video WHERE (genre = 'Jazz' OR genre = 'Light Rock') 
+					AND (video_time BETWEEN ($routeTime - 100) AND ($routeTime + 100))";
+			break;
+			
+		case '12': case '13': case '14':
+			$sql = "SELECT video_key FROM video WHERE (genre = 'Jazz' OR genre = 'Light Rock') 
+					AND (video_time BETWEEN ($routeTime - 100) AND ($routeTime + 100))";
+			break;
+			
+		case '15': case '16': case '17':
+			$sql = "SELECT video_key FROM video WHERE (genre = 'Jazz' OR genre = 'Light Rock') 
+					AND (video_time BETWEEN ($routeTime - 100) AND ($routeTime + 100))";
+			break;
+			
+		case '18': case '19': case '20':
+			$sql = "SELECT video_key FROM video WHERE (genre = 'Jazz' OR genre = 'Light Rock') 
+					AND (video_time BETWEEN ($routeTime - 100) AND ($routeTime + 100))";
+			break;
+			
+		case '21': case '22': case '23':
+			$sql = "SELECT video_key FROM video WHERE (genre = 'Jazz' OR genre = 'Light Rock') 
+					AND (video_time BETWEEN ($routeTime - 100) AND ($routeTime + 100))";
+			break;
+			
+		
+	}
 
 	try {
 		$db = getDB();
