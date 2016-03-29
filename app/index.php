@@ -73,7 +73,7 @@ $app->map ( "/linestring/(:id)", function ($elementID = null) use ($app)
 $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 {
 	$paramValue = $app->request()->get('id');
-	$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) FROM routes WHERE facebook_id = '$paramValue'";
+	$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) as geom FROM routes WHERE facebook_id = '$paramValue'";
 
 	try {
 		$db = getDB();
@@ -95,6 +95,7 @@ $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 {
 	$paramValue = $app->request()->get('loc');
+	$userID = $app->request()->get('userid');
 	//$geometry = geoPHP::load("POINT('$paramValue')", 'wkt');
 	//$get_string = pg_escape_bytea($geometry->out('ewkb'));
 	
@@ -105,7 +106,7 @@ $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 	
 	$sql = "SELECT route_name,route_time, visibility, ST_AsEWKT(geom) as geom,  
 			ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2), ST_GeomFromWKB('$insert_string')) as distance 
-			FROM routes WHERE visibility = 'public' 
+			FROM routes WHERE visibility = 'public' AND facebook_id != '$userID' 
 			ORDER BY distance LIMIT 10";
 
 
