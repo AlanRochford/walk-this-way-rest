@@ -92,6 +92,28 @@ $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 
 } )->via( "GET");
 
+$app->map ( "/pubroutes/", function ($elementID = null) use ($app)
+{
+	$paramValue = $app->request()->get('id');
+	$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) FROM routes WHERE visibility = 'public'";
+
+	try {
+		$db = getDB();
+		$stmt = pg_query($db, $sql);
+		$arrayOfResults = fetchResults ( $stmt );
+		
+		$db = null;
+		echoRespnse(200, $arrayOfResults);
+
+	} 
+	
+	catch(PDOException $e) {
+		//error_log($e->getMessage(), 3, '/var/tmp/phperror.log'); //Write error log
+		echo '{"error":{"text":'. $e->getMessage() .'}}';
+	}
+
+} )->via( "GET");
+
 $app->map ( "/video/", function ($elementID = null) use ($app)
 {
 	$routeTime = $app->request()->get('time');
