@@ -94,8 +94,17 @@ $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 
 $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 {
-	$paramValue = $app->request()->get('id');
-	$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) FROM routes WHERE visibility = 'public'";
+	$paramValue = $app->request()->get('loc');
+	//$geometry = geoPHP::load("POINT('$paramValue')", 'wkt');
+	//$get_string = pg_escape_bytea($geometry->out('ewkb'));
+	
+	$geom = geoPHP::load("POINT('$paramValue')");
+	$insert_string = pg_escape_bytea($geom->out('ewkb'));
+	//$sql = "INSERT INTO routes (route_name, route_time, facebook_id, visibility, geom) values ('$pathName', $routeTime, $userID, '$visibility', ST_GeomFromWKB('$insert_string'))";
+	//$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) FROM routes WHERE visibility = 'public'";
+	
+	$sql = "SELECT route_name,route_time, visibility, ST_AsEWKT(geom) as geom,  ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2), ST_GeomFromWKB('$insert_string')) as distance FROM routes ORDER BY distance LIMIT 10";
+
 
 	try {
 		$db = getDB();
