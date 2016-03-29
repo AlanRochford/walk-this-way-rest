@@ -103,7 +103,10 @@ $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 	//$sql = "INSERT INTO routes (route_name, route_time, facebook_id, visibility, geom) values ('$pathName', $routeTime, $userID, '$visibility', ST_GeomFromWKB('$insert_string'))";
 	//$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) FROM routes WHERE visibility = 'public'";
 	
-	$sql = "SELECT route_name,route_time, visibility, ST_AsEWKT(geom) as geom,  ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2), ST_GeomFromWKB('$insert_string')) as distance FROM routes ORDER BY distance LIMIT 10";
+	$sql = "SELECT route_name,route_time, visibility, ST_AsEWKT(geom) as geom,  
+			ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2), ST_GeomFromWKB('$insert_string')) as distance 
+			FROM routes WHERE visibility = 'public' 
+			ORDER BY distance LIMIT 10";
 
 
 	try {
