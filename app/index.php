@@ -64,11 +64,10 @@ $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 	
 	$geom = geoPHP::load("POINT('$paramValue')");
 	$insert_string = pg_escape_bytea($geom->out('ewkb'));
-	//$sql = "INSERT INTO routes (route_name, route_time, facebook_id, visibility, geom) values ('$pathName', $routeTime, $userID, '$visibility', ST_GeomFromWKB('$insert_string'))";
-	//$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) FROM routes WHERE visibility = 'public'";
-	
+	$toReplace = "%20";
+	$locFormat = str_replace($toReplace, " ", $paramValue);
 	$sql = "SELECT route_name,route_time, visibility, ST_AsEWKT(geom) as geom,  
-			ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2)," . "'POINT(" . $paramValue . ")'" .") as distance 
+			ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2)," . "'POINT(" . $locFormat . ")'" .") as distance 
 			FROM routes WHERE visibility = 'public' AND facebook_id != '$userID' 
 			ORDER BY distance LIMIT 10";
 	
