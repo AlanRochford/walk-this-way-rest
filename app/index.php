@@ -57,7 +57,6 @@ $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 {
 	$paramValue = $app->request()->get('loc');
-	echo $paramValue;
 	$userID = $app->request()->get('userid');
 	//$geometry = geoPHP::load("POINT('$paramValue')", 'wkt');
 	//$get_string = pg_escape_bytea($geometry->out('ewkb'));
