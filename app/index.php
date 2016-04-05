@@ -3,48 +3,10 @@ require 'db.php';
 require_once "../Slim/Slim.php";
 include_once('../geoPHP/geoPHP.inc');
 require_once("../geoPHP/lib/geometry/Geometry.class.php");
-// require_once "/DB/DAO/UsersDAO.php";
-// require_once "/DB/DBManager.php";
-
-// $db = new DBManager();
-// $uDAO = new UsersDAO($db);
-
-// $db->openConnection();
 
 Slim\Slim::registerAutoloader ();
 
 $app = new \Slim\Slim (); // slim run-time object
-$app->get('/data','getData');
-//$app->post('/linestring(/:id)','postLinestring');
-
-function getData()
-{
-	
-	//$sql = "SELECT * FROM paths";
-	//$body = $app->request->getBody (); // get the body of the HTTP request (from client)
-	//$geom = geoPHP::load("LINESTRING($body)");
-	$geom = geoPHP::load('LINESTRING(1 1,5 1,5 5,1 5,1 1)');
-
-	$insert_string = pg_escape_bytea($geom->out('ewkb'));
-	$sql = "INSERT INTO PATHS (geom) values (ST_GeomFromWKB('$insert_string'))";
-	//$sql = "INSERT INTO PATHS(geom) VALUES ($geom)";
-
-	
-	
-	try {
-		$db = getDB();
-		$stmt = pg_query($db, $sql);
-		$res = pg_fetch_all($stmt);
-		$db = null;
-		echo '{"res": ' . json_encode($res) . '}';
-	} 
-	
-	catch(PDOException $e) {
-		//error_log($e->getMessage(), 3, '/var/tmp/phperror.log'); //Write error log
-		echo '{"error":{"text":'. $e->getMessage() .'}}';
-	}
-}
-
 
 $app->map ( "/linestring/(:id)", function ($elementID = null) use ($app)
 {
@@ -95,6 +57,7 @@ $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 {
 	$paramValue = $app->request()->get('loc');
+	echo $paramValue;
 	$userID = $app->request()->get('userid');
 	//$geometry = geoPHP::load("POINT('$paramValue')", 'wkt');
 	//$get_string = pg_escape_bytea($geometry->out('ewkb'));
@@ -105,9 +68,10 @@ $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 	//$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) FROM routes WHERE visibility = 'public'";
 	
 	$sql = "SELECT route_name,route_time, visibility, ST_AsEWKT(geom) as geom,  
-			ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2), ST_GeomFromWKB('$insert_string')) as distance 
+			ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2)," . "'POINT(" . $paramValue . ")'" .") as distance 
 			FROM routes WHERE visibility = 'public' AND facebook_id != '$userID' 
 			ORDER BY distance LIMIT 10";
+	
 
 
 	try {
