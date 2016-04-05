@@ -63,8 +63,8 @@ $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 	
 	$geom = geoPHP::load("POINT('$paramValue')");
 	$insert_string = pg_escape_bytea($geom->out('ewkb'));
-	$toReplace = "%2520";
-	$locFormat = str_replace($toReplace, " ", $paramValue);
+	$toReplace = "%25";
+	$locFormat = str_replace($toReplace, "", $paramValue);
 	$sql = "SELECT route_name,route_time, visibility, ST_AsEWKT(geom) as geom,  
 			ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2)," . "'POINT(" . $locFormat . ")'" .") as distance 
 			FROM routes WHERE visibility = 'public' AND facebook_id != '$userID' 
