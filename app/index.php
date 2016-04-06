@@ -8,7 +8,7 @@ Slim\Slim::registerAutoloader ();
 
 $app = new \Slim\Slim (); // slim run-time object
 
-$app->map ( "/linestring/(:id)", function ($elementID = null) use ($app)
+$app->map ( "/linestring/(:id)", function ($elementID = null) use ($app)//Passing route to database
 {
 	$body = $app->request->getBody(); // get the body of the HTTP request (from client)
 	$parts = explode('!',$body); //Parse linestring after '!' to create the three values 
@@ -17,7 +17,7 @@ $app->map ( "/linestring/(:id)", function ($elementID = null) use ($app)
 	$routeTime = $parts[2];
 	$visibility = $parts[3];
 	$userID = $parts[4];
-	$geom = geoPHP::load("LINESTRING('$pathGeom')");
+	$geom = geoPHP::load("LINESTRING('$pathGeom')");//Convert to geometric object POINT
 	$insert_string = pg_escape_bytea($geom->out('ewkb'));
 	$sql = "INSERT INTO routes (route_name, route_time, facebook_id, visibility, geom) values ('$pathName', $routeTime, $userID, '$visibility', ST_GeomFromWKB('$insert_string'))";
 	try {
@@ -26,13 +26,13 @@ $app->map ( "/linestring/(:id)", function ($elementID = null) use ($app)
 		$db = null;
 	} 
 	
-	catch(PDOException $e) {
-		//error_log($e->getMessage(), 3, '/var/tmp/phperror.log'); //Write error log
+	catch(PDOException $e) 
+	{
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 } )->via( "POST");
 
-$app->map ( "/myroutes/", function ($elementID = null) use ($app)
+$app->map ( "/myroutes/", function ($elementID = null) use ($app)//Selecting my routes
 {
 	$paramValue = $app->request()->get('id');
 	$sql = "SELECT route_name, route_time, visibility, ST_AsEWKT(geom) as geom FROM routes WHERE facebook_id = '$paramValue'";
@@ -47,8 +47,8 @@ $app->map ( "/myroutes/", function ($elementID = null) use ($app)
 
 	} 
 	
-	catch(PDOException $e) {
-		//error_log($e->getMessage(), 3, '/var/tmp/phperror.log'); //Write error log
+	catch(PDOException $e) 
+	{
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 
@@ -58,33 +58,28 @@ $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 {
 	$paramValue = $app->request()->get('loc');
 	$userID = $app->request()->get('userid');
-	//$geometry = geoPHP::load("POINT('$paramValue')", 'wkt');
-	//$get_string = pg_escape_bytea($geometry->out('ewkb'));
 	
 	$geom = geoPHP::load("POINT('$paramValue')");
 	$insert_string = pg_escape_bytea($geom->out('ewkb'));
-	$toReplace = "25";
-	$locFormat = str_replace($toReplace, "", $paramValue);
+	$toReplace = "%20"; //%20 is space in URL
+	$locFormat = str_replace($toReplace, " ", $paramValue);//replace space
 	$sql = "SELECT route_name,route_time, visibility, ST_AsEWKT(geom) as geom,  
-			ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2)," . "'POINT(" . $locFormat . ")'" .") as distance 
+			ST_Distance(ST_PointN(ST_GeomFromText(ST_AsEWKT(geom)),2)," . "'POINT(" . $locFormat . ")'" .") * 100000 as distance 
 			FROM routes WHERE visibility = 'public' AND facebook_id != '$userID' 
 			ORDER BY distance LIMIT 10";
-	
-	
-
 
 	try {
 		$db = getDB();
-		$stmt = pg_query($db, $sql);
-		$arrayOfResults = fetchResults ( $stmt );
+		$stmt = pg_query($db, $sql);//Execute query
+		$arrayOfResults = fetchResults ( $stmt );//get results
 		
 		$db = null;
-		echoRespnse(200, $arrayOfResults);
+		echoRespnse(200, $arrayOfResults);//Send results to function
 
 	} 
 	
-	catch(PDOException $e) {
-		//error_log($e->getMessage(), 3, '/var/tmp/phperror.log'); //Write error log
+	catch(PDOException $e) 
+	{
 		echo '{"error":{"text":'. $e->getMessage() .'}}';
 	}
 
@@ -92,6 +87,7 @@ $app->map ( "/pubroutes/", function ($elementID = null) use ($app)
 
 $app->map ( "/video/", function ($elementID = null) use ($app)
 {
+	//Getting parameters
 	$routeTime = $app->request()->get('time');
 	$currTime = $app->request()->get('currtime');
 	$currDay = $app->request()->get('currday');
@@ -104,14 +100,15 @@ $app->map ( "/video/", function ($elementID = null) use ($app)
 		$sql = "SELECT video_key FROM video WHERE (genre = 'Irish')";	
 	}
 	
-	else if($currDate == 25 && $currMonth == '12')
+	else if($currDate == 25 && $currMonth == '12')//Christmas songs
 	{
 		$sql = "SELECT video_key FROM video WHERE (genre = 'Christmas')";
 	}
 	
 	else{
 			
-		switch ($currTime){
+		switch ($currTime)//switch depending on current time
+		{
 			
 			case '00': case '01': case '02':
 				$sql = "SELECT video_key FROM video WHERE (genre = 'Jazz' OR genre = 'Soul') 
